@@ -33,18 +33,19 @@ from gym_pybullet_drones.utils.Logger import Logger
 from gym_pybullet_drones.utils.utils import sync, str2bool
 
 DEFAULT_DRONES = DroneModel("cf2x")
-DEFAULT_NUM_DRONES = 3
+DEFAULT_NUM_DRONES = 1
 DEFAULT_PHYSICS = Physics("pyb")
 DEFAULT_GUI = True
 DEFAULT_RECORD_VISION = False
-DEFAULT_PLOT = True
+DEFAULT_PLOT = False
 DEFAULT_USER_DEBUG_GUI = False
-DEFAULT_OBSTACLES = True
+DEFAULT_OBSTACLES = False
 DEFAULT_SIMULATION_FREQ_HZ = 240
 DEFAULT_CONTROL_FREQ_HZ = 48
 DEFAULT_DURATION_SEC = 12
 DEFAULT_OUTPUT_FOLDER = 'results'
 DEFAULT_COLAB = False
+gate_folder = "/home/onur/Downloads/gym-pybullet-drones/gym_pybullet_drones/assets/race_gate.urdf"
 
 def run(
         drone=DEFAULT_DRONES,
@@ -121,6 +122,23 @@ def run(
                     output_folder=output_folder,
                     colab=colab
                     )
+    
+    gate_positions = [[0.5, 0, 1],
+                      [-1.0, 0, 1.0],
+                      [-0.5, -1.5, 1.0]]
+    
+    gate_orientations = [[0, 0, 3*np.pi/4],
+                         [0, 0, np.pi/4],
+                         [0, 0, 0]]
+    
+    for i in range(len(gate_positions)):
+        p.loadURDF(gate_folder,
+                    basePosition=gate_positions[i],
+                    baseOrientation=p.getQuaternionFromEuler(gate_orientations[i]),
+                    useFixedBase=True,
+                    physicsClientId=PYB_CLIENT
+                    )
+    
 
     #### Initialize the controllers ############################
     if drone in [DroneModel.CF2X, DroneModel.CF2P]:
@@ -132,7 +150,7 @@ def run(
     for i in range(0, int(duration_sec*env.CTRL_FREQ)):
 
         #### Make it rain rubber ducks #############################
-        if i/env.PYB_FREQ>5 and i%10==0 and i/env.PYB_FREQ<10: p.loadURDF("duck_vhacd.urdf", [0+random.gauss(0, 0.3),-0.5+random.gauss(0, 0.3),3], p.getQuaternionFromEuler([random.randint(0,360),random.randint(0,360),random.randint(0,360)]), physicsClientId=PYB_CLIENT)
+        # if i/env.PYB_FREQ>5 and i%10==0 and i/env.PYB_FREQ<10: p.loadURDF("duck_vhacd.urdf", [0+random.gauss(0, 0.3),-0.5+random.gauss(0, 0.3),3], p.getQuaternionFromEuler([random.randint(0,360),random.randint(0,360),random.randint(0,360)]), physicsClientId=PYB_CLIENT)
 
         #### Step the simulation ###################################
         obs, reward, terminated, truncated, info = env.step(action)
