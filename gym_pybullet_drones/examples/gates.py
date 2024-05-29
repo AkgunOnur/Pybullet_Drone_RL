@@ -25,6 +25,7 @@ import random
 import numpy as np
 import pybullet as p
 import matplotlib.pyplot as plt
+from scipy.spatial.transform import Rotation
 
 from gym_pybullet_drones.utils.enums import DroneModel, Physics
 from gym_pybullet_drones.envs.CtrlAviary import CtrlAviary
@@ -68,6 +69,9 @@ def run(
     R = .3
     INIT_XYZS = np.array([[R*np.cos((i/6)*2*np.pi+np.pi/2), R*np.sin((i/6)*2*np.pi+np.pi/2)-R, H+i*H_STEP] for i in range(num_drones)])
     INIT_RPYS = np.array([[0, 0,  i * (np.pi/2)/num_drones] for i in range(num_drones)])
+
+    INIT_XYZS = np.array([[0.5, 0, 1]])
+    INIT_RPYS = np.array([[0, 0, 3*np.pi/4]])
 
     #### Initialize a circular trajectory ######################
     PERIOD = 10
@@ -147,13 +151,37 @@ def run(
     #### Run the simulation ####################################
     action = np.zeros((num_drones,4))
     START = time.time()
+    
+    
     for i in range(0, int(duration_sec*env.CTRL_FREQ)):
 
         #### Make it rain rubber ducks #############################
         # if i/env.PYB_FREQ>5 and i%10==0 and i/env.PYB_FREQ<10: p.loadURDF("duck_vhacd.urdf", [0+random.gauss(0, 0.3),-0.5+random.gauss(0, 0.3),3], p.getQuaternionFromEuler([random.randint(0,360),random.randint(0,360),random.randint(0,360)]), physicsClientId=PYB_CLIENT)
 
+        
+
         #### Step the simulation ###################################
         obs, reward, terminated, truncated, info = env.step(action)
+
+        # drone_quat = obs[0][3:7]
+        
+        # gate_quat = p.getQuaternionFromEuler(gate_orientations[0])
+        # drone_rot = Rotation.from_quat(drone_quat)
+        # gate_rot = Rotation.from_quat(gate_quat)
+        
+        # # Calculate the relative rotation between the drone and the gate
+        # relative_rot = drone_rot.inv() * gate_rot
+        
+        # # Convert the relative rotation to Euler angles (roll, pitch, yaw)
+        # relative_euler = relative_rot.as_euler('xyz', degrees=True)
+    
+        # # Calculate the orientational distance using the Euclidean norm of the relative Euler angles
+        # orientation_dist = np.linalg.norm(relative_euler)
+        # print ("gate_quat: ", gate_quat)
+        # print ("drone_quat: ", drone_quat)
+        # print ("orientation_dist: ", orientation_dist)
+        # print ("\n\n")
+
 
         #### Compute control for the current way point #############
         for j in range(num_drones):

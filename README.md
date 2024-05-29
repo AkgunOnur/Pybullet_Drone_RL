@@ -39,13 +39,6 @@ cd gym_pybullet_drones/examples/
 python3 downwash.py
 ```
 
-### Gate example
-
-```sh
-cd gym_pybullet_drones/examples/
-python3 gates.py
-```
-
 ### Reinforcement learning examples (SB3's PPO)
 
 ```sh

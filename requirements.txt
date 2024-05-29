@@ -1,0 +1,4 @@
+scipy
+pybullet
+transforms3d
+tensorboard
